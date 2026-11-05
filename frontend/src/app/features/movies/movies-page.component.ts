@@ -2,8 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
-
-import { Movie, MoviePage } from '../../models/movie.models';
+import { Movie, MovieDetails, MoviePage } from '../../models/movie.models';
 import { MovieService } from '../../services/movie.service';
 
 @Component({
@@ -24,6 +23,10 @@ export class MoviesPageComponent implements OnInit {
   errorMessage = '';
   currentPage = 1;
   totalPages = 1;
+  selectedMovie: MovieDetails | null = null;
+  isDetailsOpen = false;
+  isDetailsLoading = false;
+  detailsErrorMessage = '';
 
   ngOnInit(): void {
     this.loadPopularMovies();
@@ -61,6 +64,30 @@ export class MoviesPageComponent implements OnInit {
     if (!this.isLoading && this.currentPage < this.totalPages) {
       this.changePage(this.currentPage + 1);
     }
+  }
+
+  openDetails(movieId: number): void {
+    this.isDetailsOpen = true;
+    this.isDetailsLoading = true;
+    this.detailsErrorMessage = '';
+    this.selectedMovie = null;
+
+    this.movieService.getMovieDetails(movieId).subscribe({
+      next: (details) => {
+        this.selectedMovie = details;
+        this.isDetailsLoading = false;
+      },
+      error: () => {
+        this.detailsErrorMessage = 'No fue posible cargar los detalles de la película.';
+        this.isDetailsLoading = false;
+      },
+    });
+  }
+
+  closeDetails(): void {
+    this.isDetailsOpen = false;
+    this.selectedMovie = null;
+    this.detailsErrorMessage = '';
   }
 
   private changePage(page: number): void {
