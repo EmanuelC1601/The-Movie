@@ -1,5 +1,6 @@
 package com.wellfair.movie_api.service;
 
+import com.wellfair.movie_api.model.TmdbMovieDetails;
 import com.wellfair.movie_api.model.TmdbMoviePage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -36,5 +37,15 @@ public class TmdbMovieService {
                         .build())
                 .retrieve()
                 .body(TmdbMoviePage.class);
+    }
+
+    public TmdbMovieDetails getMovieDetails(int movieId) {
+        return tmdbRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/movie/{movieId}")
+                        .queryParam("language", LANGUAGE)
+                        .build(movieId))
+                .retrieve()
+                .body(TmdbMovieDetails.class);
     }
 }
