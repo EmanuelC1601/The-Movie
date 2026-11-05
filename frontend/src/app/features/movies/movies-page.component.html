@@ -1,0 +1,116 @@
+<main class="catalog-page container py-4 py-lg-5">
+  <header class="text-center mb-4 mb-lg-5">
+    <p class="eyebrow mb-2">CARTELERA</p>
+    <h1 class="display-5 fw-bold">Explora películas</h1>
+    <p class="lead text-secondary">Descubre títulos populares o busca tu próxima película</p>
+  </header>
+
+  <form class="search-form row g-2 justify-content-center mb-5" (ngSubmit)="searchMovies()">
+    <div class="col-12 col-md-7 col-lg-6">
+      <label class="visually-hidden" for="movie-search">Buscar película</label>
+      <input
+        id="movie-search"
+        name="searchQuery"
+        class="form-control form-control-lg"
+        type="search"
+        placeholder="Escribe el título de una película"
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+
+    <div class="col-8 col-md-auto">
+      <button class="btn btn-primary btn-lg w-100" type="submit" [disabled]="isLoading">
+        Buscar
+      </button>
+    </div>
+
+    <div class="col-4 col-md-auto">
+      <button
+        class="btn btn-outline-light btn-lg w-100"
+        type="button"
+        (click)="clearSearch()"
+        [disabled]="isLoading || !searchQuery"
+      >
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  <section aria-live="polite">
+    @if (isLoading) {
+      <div class="status-message" role="status">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        Cargando películas…
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+    }
+
+    @if (noResults && !isLoading) {
+      <div class="status-message">
+        No encontramos películas que coincidan con tu búsqueda.
+      </div>
+    }
+
+    @if (!isLoading && !errorMessage && movies.length > 0) {
+      <div class="results-heading d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">{{ isSearching ? 'Resultados de búsqueda' : 'Películas populares' }}</h2>
+        <span class="text-secondary">Página {{ currentPage }} de {{ totalPages }}</span>
+      </div>
+
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+        @for (movie of movies; track movie.id) {
+          <div class="col">
+            <article class="card movie-card h-100">
+              @if (movie.poster_path) {
+                <img
+                  class="card-img-top movie-poster"
+                  [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
+                  [alt]="'Póster de ' + movie.title"
+                />
+              } @else {
+                <div class="movie-poster poster-placeholder" role="img" aria-label="Póster no disponible">
+                  <span>Póster no disponible</span>
+                </div>
+              }
+
+              <div class="card-body d-flex flex-column">
+                <h3 class="card-title h5">{{ movie.title }}</h3>
+                <p class="movie-meta mb-2">
+                  Estreno: {{ movie.release_date || 'Fecha no disponible' }}
+                </p>
+                <p class="movie-rating mt-auto mb-0">
+                  ★ {{ movie.vote_average | number: '1.1-1' }} / 10
+                </p>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <nav class="d-flex justify-content-center align-items-center gap-3 mt-5" aria-label="Paginación">
+          <button
+            class="btn btn-outline-light"
+            type="button"
+            (click)="previousPage()"
+            [disabled]="currentPage <= 1 || isLoading"
+          >
+            Anterior
+          </button>
+          <span>Página {{ currentPage }}</span>
+          <button
+            class="btn btn-outline-light"
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage >= totalPages || isLoading"
+          >
+            Siguiente
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</main>
