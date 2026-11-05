@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { Movie, MovieDetails, MoviePage } from '../../models/movie.models';
+import { ApiError, Movie, MovieDetails, MoviePage } from '../../models/movie.models';
 import { MovieService } from '../../services/movie.service';
 
 @Component({
@@ -77,8 +78,11 @@ export class MoviesPageComponent implements OnInit {
         this.selectedMovie = details;
         this.isDetailsLoading = false;
       },
-      error: () => {
-        this.detailsErrorMessage = 'No fue posible cargar los detalles de la película.';
+      error: (error: HttpErrorResponse) => {
+        this.detailsErrorMessage = this.getErrorMessage(
+          error,
+          'No fue posible cargar los detalles de la película.',
+        );
         this.isDetailsLoading = false;
       },
     });
@@ -88,6 +92,11 @@ export class MoviesPageComponent implements OnInit {
     this.isDetailsOpen = false;
     this.selectedMovie = null;
     this.detailsErrorMessage = '';
+  }
+
+  private getErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    const apiError = error.error as ApiError | null;
+    return apiError?.message || fallback;
   }
 
   private changePage(page: number): void {
@@ -112,8 +121,11 @@ export class MoviesPageComponent implements OnInit {
         this.noResults = this.movies.length === 0;
         this.isLoading = false;
       },
-      error: () => {
-        this.errorMessage = 'No fue posible cargar las películas. Intenta de nuevo.';
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.getErrorMessage(
+          error,
+          'No fue posible cargar las películas. Intenta de nuevo.',
+        );
         this.isLoading = false;
       },
     });
