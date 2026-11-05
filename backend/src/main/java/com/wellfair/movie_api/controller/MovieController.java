@@ -1,9 +1,11 @@
 package com.wellfair.movie_api.controller;
 
+import com.wellfair.movie_api.model.TmdbMovieDetails;
 import com.wellfair.movie_api.model.TmdbMoviePage;
 import com.wellfair.movie_api.service.TmdbMovieService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +32,10 @@ public class MovieController {
             @RequestParam String query,
             @RequestParam(defaultValue = "1") int page) {
         return tmdbMovieService.searchMovies(query, page);
+    }
+
+    @GetMapping("/{movieId}")
+    public TmdbMovieDetails getMovieDetails(@PathVariable int movieId) {
+        return tmdbMovieService.getMovieDetails(movieId);
     }
 }
