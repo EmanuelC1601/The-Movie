@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ApiError, Movie, MovieDetails, MoviePage } from '../../models/movie.models';
@@ -15,6 +15,7 @@ import { MovieService } from '../../services/movie.service';
 })
 export class MoviesPageComponent implements OnInit {
   private readonly movieService = inject(MovieService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   movies: Movie[] = [];
   searchQuery = '';
@@ -45,7 +46,6 @@ export class MoviesPageComponent implements OnInit {
       this.clearSearch();
       return;
     }
-
     this.isSearching = true;
     this.loadMovies(this.movieService.searchMovies(query, page));
   }
@@ -72,11 +72,12 @@ export class MoviesPageComponent implements OnInit {
     this.isDetailsLoading = true;
     this.detailsErrorMessage = '';
     this.selectedMovie = null;
-
+    this.cdr.markForCheck();
     this.movieService.getMovieDetails(movieId).subscribe({
       next: (details) => {
         this.selectedMovie = details;
         this.isDetailsLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.detailsErrorMessage = this.getErrorMessage(
@@ -84,6 +85,7 @@ export class MoviesPageComponent implements OnInit {
           'No fue posible cargar los detalles de la película.',
         );
         this.isDetailsLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -112,6 +114,7 @@ export class MoviesPageComponent implements OnInit {
     this.errorMessage = '';
     this.noResults = false;
     this.movies = [];
+    this.cdr.markForCheck();
 
     request.subscribe({
       next: (response) => {
@@ -120,6 +123,7 @@ export class MoviesPageComponent implements OnInit {
         this.totalPages = response.total_pages;
         this.noResults = this.movies.length === 0;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(
@@ -127,6 +131,7 @@ export class MoviesPageComponent implements OnInit {
           'No fue posible cargar las películas. Intenta de nuevo.',
         );
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
