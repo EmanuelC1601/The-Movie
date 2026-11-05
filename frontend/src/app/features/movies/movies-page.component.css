@@ -132,3 +132,15 @@
   background: #273349;
   color: #d4dbea;
 }
+
+.tmdb-credits {
+  border-top: 1px solid #273349;
+  color: #b9c4d6;
+}
+
+.tmdb-logo {
+  display: block;
+  width: 110px;
+  max-width: 100%;
+  height: auto;
+}
